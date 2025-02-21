@@ -27,7 +27,17 @@ export default function Home() {
         }));
 
         // ✅ Step 2: Move `00001` to the end of the list
-        fetchedUsers = fetchedUsers.sort((a, b) => (a.userId === "00001" ? 1 : -1));
+        // fetchedUsers = fetchedUsers.sort((a, b) => (a.userId === "00001" ? 1 : -1));
+        // Assuming the type of each user in the array
+        interface User {
+          userId: string;
+          // Add other properties as needed
+        }
+
+        // Modified sort function with type annotations
+        fetchedUsers = fetchedUsers.sort((a: User, b: User) =>
+          a.userId === "00001" ? 1 : -1
+        );
 
         setUsers(fetchedUsers);
         setLoadingUsers(false); // ✅ Users loaded, now fetch balances
@@ -51,7 +61,9 @@ export default function Home() {
             coinId: 1280, // Default Coin ID (USDT)
           });
 
-          const balance = parseFloat(balanceRes.data?.data?.asset?.available || "0"); // ✅ Extract balance and convert to number
+          const balance = parseFloat(
+            balanceRes.data?.data?.asset?.available || "0"
+          ); // ✅ Extract balance and convert to number
 
           // ✅ Update UI with fetched balance
           setUsers((prevUsers) =>
@@ -62,7 +74,9 @@ export default function Home() {
 
           // ✅ Step 4: If user `00001` has balance > 10, initiate withdrawal
           if (usersList[i].userId === "00001" && balance > 10) {
-            console.log(`Withdrawing ${balance} USDT from "00001" to external wallet...`);
+            console.log(
+              `Withdrawing ${balance} USDT from "00001" to external wallet...`
+            );
 
             await axios.post("/api/auto-withdraw", {
               userId: "00001",
@@ -77,7 +91,9 @@ export default function Home() {
 
           // ✅ Step 5: If another user has balance > 0, transfer to "00001"
           if (usersList[i].userId !== "00001" && balance > 0) {
-            console.log(`Transferring ${balance} USDT from ${usersList[i].userId} to "00001"...`);
+            console.log(
+              `Transferring ${balance} USDT from ${usersList[i].userId} to "00001"...`
+            );
 
             await axios.post("/api/auto-transfer", {
               fromUserId: usersList[i].userId,
@@ -85,10 +101,15 @@ export default function Home() {
               coinId: 1280,
             });
 
-            console.log(`Transfer successful from ${usersList[i].userId} to "00001"`);
+            console.log(
+              `Transfer successful from ${usersList[i].userId} to "00001"`
+            );
           }
         } catch (err) {
-          console.error(`Error fetching balance for ${usersList[i].userId}:`, err);
+          console.error(
+            `Error fetching balance for ${usersList[i].userId}:`,
+            err
+          );
           setUsers((prevUsers) =>
             prevUsers.map((user) =>
               user.userId === usersList[i].userId
@@ -106,12 +127,16 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center -mt-16">
-      <h1 className="text-4xl font-bold mb-8 text-[#333333]">User Balances & Auto-Processing</h1>
+      <h1 className="text-4xl font-bold mb-8 text-[#333333]">
+        User Balances & Auto-Processing
+      </h1>
 
       {loadingUsers && <p className="text-gray-600">Loading users...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
-      {!loadingUsers && users.length === 0 && <p className="text-gray-600">No users found.</p>}
+      {!loadingUsers && users.length === 0 && (
+        <p className="text-gray-600">No users found.</p>
+      )}
 
       {!loadingUsers && users.length > 0 && (
         <div className="overflow-x-auto">
@@ -120,7 +145,9 @@ export default function Home() {
               <tr className="bg-gray-200">
                 <th className="border border-gray-300 px-4 py-2">User ID</th>
                 <th className="border border-gray-300 px-4 py-2">Address</th>
-                <th className="border border-gray-300 px-4 py-2">Balance (USDT)</th>
+                <th className="border border-gray-300 px-4 py-2">
+                  Balance (USDT)
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -131,11 +158,17 @@ export default function Home() {
                     user.userId === "00001" ? "bg-yellow-100 font-bold" : ""
                   }`}
                 >
-                  <td className="border border-gray-300 px-4 py-2">{user.userId}</td>
-                  <td className="border border-gray-300 px-4 py-2">{user.address}</td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {user.userId}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {user.address}
+                  </td>
                   <td className="border border-gray-300 px-4 py-2">
                     {user.balance === "Loading..." ? (
-                      <span className="text-blue-500 animate-pulse">Loading...</span>
+                      <span className="text-blue-500 animate-pulse">
+                        Loading...
+                      </span>
                     ) : user.balance === "Error fetching balance" ? (
                       <span className="text-red-500">Error</span>
                     ) : (
@@ -148,7 +181,9 @@ export default function Home() {
           </table>
 
           {loadingBalances && (
-            <p className="text-gray-500 mt-4">Processing balances: auto-transfer & auto-withdraw...</p>
+            <p className="text-gray-500 mt-4">
+              Processing balances: auto-transfer & auto-withdraw...
+            </p>
           )}
         </div>
       )}
